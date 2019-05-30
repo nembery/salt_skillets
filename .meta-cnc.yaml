@@ -1,0 +1,59 @@
+# This skillet uses the Salt API to run a state file to manage docker containers. In this case, it will 
+# launch or update the image paloaltonetworks/panhandler:dev
+name: panhandler_dev
+
+label: Launch Latest Panhandler Development Container
+
+description: Loads the latest Panhandler development Version in a new container
+
+# type instructs Panhandler how to consume this skillet
+type: rest
+
+# extends allows you to include other skillets along with this one
+extends:
+
+# labels allow extensible configuration options per skillet type. For example, labels can be used to
+# group multiple skillets of the same type (pan-os skillets labeled as version: 9.0 for example)
+labels:
+  collection: Deployment Tools
+
+# Variables will be presented to the user via the Panhandler GUI. These values will then be passed to
+# the terraform binary as '--var' options, thus overriding any tfvars entries.
+# Variable names MUST match the names of the defined terraform variables
+variables:
+  - name: local_port
+    description: Local Port
+    default: 8081
+    type_hint: number
+    attributes:
+      min: 8080
+      max: 69000
+  - name: provisioner_port
+    description: Provisioner Port
+    default: 8000
+    type_hint: number
+    attributes:
+      min: 8000
+      max: 8079
+  - name: provisioner_username
+    description: Provisioner Username
+    default: salt
+    type_hint: text
+  - name: provisioner_password
+    description: Provisioner Password
+    default: salt
+    type_hint: password
+
+snippets:
+  - name: salt_login
+    path: https://localhost:{{ provisioner_port }}/login
+    operation: post
+    payload: auth.j2
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+  - name: deploy_panhandler_dev
+    path: https://localhost:{{ provisioner_port }}
+    operation: post
+    payload: launch_container.j2
+    headers:
+      Content-Type: application/json
