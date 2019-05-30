@@ -1,0 +1,13 @@
+[{
+    "client": "local",
+    "tgt": "container_mgmt",
+    "fun": "state.apply",
+    "arg": ["launch_container"],
+    "kwarg": {
+                "pillar": {
+                    "container": "panhandler_dev",
+                    "image": "paloaltonetworks/panhandler:dev",
+                    "port_bindings": "{{ local_port }}:80"
+                }
+        }
+}]
